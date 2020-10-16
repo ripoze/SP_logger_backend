@@ -1,0 +1,93 @@
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/data.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+<script src="https://code.highcharts.com/modules/accessibility.js"></script>
+
+<figure class="highcharts-figure">
+    <div id="container"></div>
+</figure>
+
+<div id="rename">
+    <form action="/update/{{MAC}}/{{INPUT}}" method="post">
+        <label>Mittauksen uusi tunnus</label>
+        <input name="newName" id="newName" value="">
+        <br>
+        <input type="submit" value="Tallenna">
+    </form>
+</div>
+<div>
+    <a href="/">Takaisin</a>
+</div>
+<script>
+    const MAC = '{{MAC}}';
+    const input = '{{INPUT}}';
+    const query = '/data/' + MAC + '/' + input;
+    console.log(query);
+    Highcharts.getJSON(
+        query,
+        function (data) {
+
+            Highcharts.chart('container', {
+                chart: {
+                    zoomType: 'x'
+                },
+                title: {
+                    text: 'Sähkönsyötön tila:' + data.name,
+                    useHTML: true
+                },
+                subtitle: {
+                    text: document.ontouchstart === undefined ?
+                        'Click and drag in the plot area to zoom in' : 'Pinch the chart to zoom in'
+                },
+                xAxis: {
+                    type: 'datetime'
+                },
+                yAxis: {
+                    title: {
+                        text: 'Tila'
+                    }
+                },
+                legend: {
+                    enabled: false
+                },
+                time: {
+                    timezoneOffset: -180
+                },
+                plotOptions: {
+                    area: {
+                        fillColor: {
+                            linearGradient: {
+                                x1: 0,
+                                y1: 0,
+                                x2: 0,
+                                y2: 1
+                            },
+                            stops: [
+                                [0, Highcharts.getOptions().colors[0]],
+                                [1, Highcharts.color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+                            ]
+                        },
+                        marker: {
+                            radius: 2
+                        },
+                        lineWidth: 1,
+                        states: {
+                            hover: {
+                                lineWidth: 1
+                            }
+                        },
+                        threshold: null
+                    }
+                },
+
+                series: [{
+                    type: 'area',
+                    name: 'Tila',
+                    data: data.data,
+                    step: 'left'
+                }]
+            });
+        }
+    );
+</script>
